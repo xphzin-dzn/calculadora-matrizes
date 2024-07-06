@@ -43,17 +43,6 @@ input[type="number"] {
     border-radius: 5px;
 }
 
-textarea {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    font-size: 16px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    resize: none;
-}
-
 button {
     padding: 10px 20px;
     margin: 10px 5px;
@@ -75,11 +64,18 @@ button:active {
     transform: translateY(0);
 }
 
-.matrix-inputs {
+.matrix-row {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.matrix-col {
+    width: 50px;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .operations {
