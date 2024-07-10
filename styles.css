@@ -9,7 +9,6 @@ body {
     margin: 0;
     background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
     overflow-x: hidden;
-    /* Evita o transbordamento horizontal */
 }
 
 .container {
