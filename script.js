@@ -130,3 +130,10 @@ function transposeMatrixB() {
 
     document.getElementById('result').innerText = formatMatrix(result); // Exibe o resultado formatado
 }
+function goBackToStart() {
+    document.getElementById('matrix-dimensions').style.display = 'block';
+    document.getElementById('matrix-inputs').style.display = 'none';
+    document.querySelector('.operations').style.display = 'none';
+    document.querySelector('.result').style.display = 'none';
+    document.getElementById('result').innerText = '';
+}
