@@ -1,136 +1,118 @@
-let calculatorType = '';
-
-function showCalculator(type) {
-    calculatorType = type;
-    document.querySelector('.menu').style.display = 'none';
-    document.getElementById('calculator').style.display = 'block';
-    document.getElementById('operation-button').innerText = type === 'normal' ? 'Calcular' : 'Calcular Inversa';
-}
-
 function setMatrixDimensions() {
     const rows = document.getElementById('rows').value;
     const cols = document.getElementById('cols').value;
 
-    if (rows && cols) {
-        if (calculatorType === 'inversa' && (rows > 3 || cols > 3)) {
-            alert("A matriz deve ser de no máximo 3x3 para calcular a inversa.");
-            return;
-        }
-        document.getElementById('matrix-dimensions').style.display = 'none';
-        document.getElementById('matrix-inputs').style.display = 'block';
-        document.querySelector('.operations').style.display = 'block';
-
-        createMatrixInputs('matrix', rows, cols);
-    } else {
-        alert("Por favor, defina todas as dimensões da matriz.");
+    if (rows > 3 || cols > 3) {
+        alert("A matriz deve ser de no máximo 3x3 para calcular a inversa.");
+        return;
     }
+
+    document.getElementById('matrix-dimensions').style.display = 'none';
+    document.getElementById('matrix-inputs').style.display = 'block';
+    createMatrixInputs(rows, cols);
 }
 
-function createMatrixInputs(matrixId, rows, cols) {
-    const matrixDiv = document.getElementById(matrixId);
+function createMatrixInputs(rows, cols) {
+    const matrixDiv = document.getElementById('matrix');
     matrixDiv.innerHTML = '';
 
     for (let i = 0; i < rows; i++) {
         const rowDiv = document.createElement('div');
-        rowDiv.className = 'matrix-row';
-
         for (let j = 0; j < cols; j++) {
             const input = document.createElement('input');
             input.type = 'number';
-            input.className = 'matrix-col';
+            input.className = 'matrix-input';
             rowDiv.appendChild(input);
         }
-
         matrixDiv.appendChild(rowDiv);
     }
 }
 
-function parseMatrix(matrixId) {
+function getMatrix() {
+    const matrixDiv = document.getElementById('matrix');
+    const rows = matrixDiv.getElementsByClassName('matrix-input').length / document.getElementById('cols').value;
+    const cols = document.getElementById('cols').value;
     const matrix = [];
-    const matrixDiv = document.getElementById(matrixId);
-    const rows = matrixDiv.getElementsByClassName('matrix-row');
 
-    for (let row of rows) {
-        const cols = row.getElementsByClassName('matrix-col');
-        const rowArray = [];
-        for (let col of cols) {
-            rowArray.push(Number(col.value));
+    for (let i = 0; i < rows; i++) {
+        const row = [];
+        for (let j = 0; j < cols; j++) {
+            const value = matrixDiv.children[i].children[j].value;
+            row.push(parseFloat(value));
         }
-        matrix.push(rowArray);
+        matrix.push(row);
     }
     return matrix;
 }
 
-function formatMatrix(matrix) {
-    return matrix.map(row => row.join(' ')).join('\n');
-}
-
-function calculate() {
-    const matrix = parseMatrix('matrix');
-    if (calculatorType === 'normal') {
-        document.getElementById('result').innerText = formatMatrix(matrix);
-    } else if (calculatorType === 'inversa') {
-        if (matrix.length !== matrix[0].length) {
-            alert("A matriz deve ser quadrada para calcular a inversa.");
-            return;
-        }
-        const inverse = calculateInverse(matrix);
-        document.getElementById('result').innerText = formatMatrix(inverse);
+function calculateInverse() {
+    const matrix = getMatrix();
+    if (matrix.length !== matrix[0].length) {
+        alert("A matriz deve ser quadrada para calcular a inversa.");
+        return;
     }
-    document.querySelector('.result').style.display = 'block';
+    const inverse = inverseMatrix(matrix);
+    displayResult(inverse);
 }
 
-function calculateInverse(matrix) {
-    const n = matrix.length;
-    const identity = createIdentityMatrix(n);
-    const augmentedMatrix = augmentMatrix(matrix, identity);
-    return gaussJordanElimination(augmentedMatrix, n);
+function inverseMatrix(matrix) {
+    const size = matrix.length;
+    const identity = createIdentityMatrix(size);
+    const augmented = augmentMatrix(matrix, identity);
+
+    for (let i = 0; i < size; i++) {
+        let maxRow = i;
+        for (let k = i + 1; k < size; k++) {
+            if (Math.abs(augmented[k][i]) > Math.abs(augmented[maxRow][i])) {
+                maxRow = k;
+            }
+        }
+
+        [augmented[i], augmented[maxRow]] = [augmented[maxRow], augmented[i]];
+
+        const diagElement = augmented[i][i];
+        for (let j = 0; j < 2 * size; j++) {
+            augmented[i][j] /= diagElement;
+        }
+
+        for (let k = 0; k < size; k++) {
+            if (k !== i) {
+                const factor = augmented[k][i];
+                for (let j = 0; j < 2 * size; j++) {
+                    augmented[k][j] -= factor * augmented[i][j];
+                }
+            }
+        }
+    }
+
+    return augmented.map(row => row.slice(size));
 }
 
-function createIdentityMatrix(n) {
-    return Array.from({ length: n }, (_, i) =>
-        Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
-    );
+function createIdentityMatrix(size) {
+    const identity = [];
+    for (let i = 0; i < size; i++) {
+        const row = [];
+        for (let j = 0; j < size; j++) {
+            row.push(i === j ? 1 : 0);
+        }
+        identity.push(row);
+    }
+    return identity;
 }
 
 function augmentMatrix(matrix, identity) {
     return matrix.map((row, i) => [...row, ...identity[i]]);
 }
 
-function gaussJordanElimination(matrix, n) {
-    for (let i = 0; i < n; i++) {
-        let maxRow = i;
-        for (let k = i + 1; k < n; k++) {
-            if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
-                maxRow = k;
-            }
-        }
-
-        [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
-
-        const diagElement = matrix[i][i];
-        for (let j = 0; j < 2 * n; j++) {
-            matrix[i][j] /= diagElement;
-        }
-
-        for (let k = 0; k < n; k++) {
-            if (k === i) continue;
-            const factor = matrix[k][i];
-            for (let j = 0; j < 2 * n; j++) {
-                matrix[k][j] -= factor * matrix[i][j];
-            }
-        }
-    }
-
-    return matrix.map(row => row.slice(n));
+function displayResult(matrix) {
+    const resultDiv = document.getElementById('result');
+    const resultContent = document.getElementById('result-content');
+    resultContent.innerText = matrix.map(row => row.join('\t')).join('\n');
+    resultDiv.style.display = 'block';
 }
 
-function goBackToStart() {
-    document.querySelector('.menu').style.display = 'block';
-    document.getElementById('calculator').style.display = 'none';
+function goBack() {
+    document.getElementById('result').style.display = 'none';
     document.getElementById('matrix-dimensions').style.display = 'block';
     document.getElementById('matrix-inputs').style.display = 'none';
-    document.querySelector('.operations').style.display = 'none';
-    document.querySelector('.result').style.display = 'none';
-    document.getElementById('result').innerText = '';
 }
