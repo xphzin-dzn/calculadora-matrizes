@@ -102,15 +102,6 @@ pre {
     border-radius: 5px;
     border: 1px solid #ccc;
 }
-
-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    background-color: white;
-}
-
 @media (max-width: 600px) {
     .container {
         padding: 20px;
