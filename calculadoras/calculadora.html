@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Matrizes</title>
+    <link rel="icon" type="image/png" href="../img/matriz.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #555;
+        }
+
+        label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        .matrix-col {
+            width: 50px;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .operations {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        pre {
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            background-color: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            label,
+            input[type="number"] {
+                font-size: 12px;
+            }
+
+            input[type="number"] {
+                width: 50px;
+                padding: 3px;
+            }
+
+            button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .matrix-col {
+                width: 40px;
+                padding: 3px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculadora de Matrizes</h1>
+        <div id="matrix-dimensions">
+            <h2>Qual será o formato de sua matriz?</h2>
+            <div>
+                <label for="rowsA">Linhas de A:</label>
+                <input type="number" id="rowsA" min="1" aria-label="Linhas de A" />
+                <label for="colsA">Colunas de A:</label>
+                <input type="number" id="colsA" min="1" aria-label="Colunas de A" />
+            </div>
+            <div>
+                <label for="rowsB">Linhas de B:</label>
+                <input type="number" id="rowsB" min="1" aria-label="Linhas de B" />
+                <label for="colsB">Colunas de B:</label>
+                <input type="number" id="colsB" min="1" aria-label="Colunas de B" />
+            </div>
+            <button onclick="setMatrixDimensions()">Definir Formato</button>
+        </div>
+        <div id="matrix-inputs" style="display:none;">
+            <div>
+                <h2>Matriz A</h2>
+                <div id="matrixA"></div>
+            </div>
+            <div>
+                <h2>Matriz B</h2>
+                <div id="matrixB"></div>
+            </div>
+        </div>
+        <div class="operations" style="display:none;">
+            <button onclick="addMatrices()">Adicionar</button>
+            <button onclick="subtractMatrices()">Subtrair</button>
+            <button onclick="multiplyMatrices()">Multiplicar</button>
+            <button onclick="transposeMatrixA()">Transposta de A</button>
+            <button onclick="transposeMatrixB()">Transposta de B</button>
+        </div>
+        <div class="result" style="display:none;">
+            <h2>Resultado</h2>
+            <pre id="result"></pre>
+            <button class="back-button" onclick="goBackToStart()">Voltar ao Início</button>
+        </div>
+    </div>
+
+    <script>
+        function parseMatrix(matrixId) {
+            const matrix = [];
+            const matrixDiv = document.getElementById(matrixId);
+            const rows = matrixDiv.getElementsByClassName('matrix-row');
+
+            for (let row of rows) {
+                const cols = row.getElementsByClassName('matrix-col');
+                const rowArray = [];
+                for (let col of cols) {
+                    rowArray.push(Number(col.value));
+                }
+                matrix.push(rowArray);
+            }
+            return matrix;
+        }
+
+        function formatMatrix(matrix) {
+            return matrix.map(row => row.join(' ')).join('\n');
+        }
+
+        function setMatrixDimensions() {
+            const rowsA = document.getElementById('rowsA').value;
+            const colsA = document.getElementById('colsA').value;
+            const rowsB = document.getElementById('rowsB').value;
+            const colsB = document.getElementById('colsB').value;
+
+            if (rowsA && colsA && rowsB && colsB) {
+                document.getElementById('matrix-dimensions').style.display = 'none';
+                document.getElementById('matrix-inputs').style.display = 'block';
+                document.querySelector('.operations').style.display = 'block';
+                document.querySelector('.result').style.display = 'block';
+
+                createMatrixInputs('matrixA', rowsA, colsA);
+                createMatrixInputs('matrixB', rowsB, colsB);
+            } else {
+                alert("Por favor, defina todas as dimensões das matrizes.");
+            }
+        }
+
+        function createMatrixInputs(matrixId, rows, cols) {
+            const matrixDiv = document.getElementById(matrixId);
+            matrixDiv.innerHTML = '';
+
+            for (let i = 0; i < rows; i++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'matrix-row';
+
+                for (let j = 0; j < cols; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'matrix-col';
+                    rowDiv.appendChild(input);
+                }
+
+                matrixDiv.appendChild(rowDiv);
+            }
+        }
+
+        function addMatrices() {
+            const matrixA = parseMatrix('matrixA');
+            const matrixB = parseMatrix('matrixB');
+
+            if (matrixA.length !== matrixB.length || matrixA[0].length !== matrixB[0].length) {
+                alert("As matrizes devem ter o mesmo tamanho para serem somadas.");
+                return;
+            }
+
+            const result = matrixA.map((row, i) =>
+                row.map((val, j) => val + matrixB[i][j])
+            );
+
+            document.getElementById('result').innerText = formatMatrix(result);
+        }
+
+        function subtractMatrices() {
+            const matrixA = parseMatrix('matrixA');
+            const matrixB = parseMatrix('matrixB');
+
+            if (matrixA.length !== matrixB.length || matrixA[0].length !== matrixB[0].length) {
+                alert("As matrizes devem ter o mesmo tamanho para serem subtraídas.");
+                return;
+            }
+
+            const result = matrixA.map((row, i) =>
+                row.map((val, j) => val - matrixB[i][j])
+            );
+
+            document.getElementById('result').innerText = formatMatrix(result);
+        }
+
+        function multiplyMatrices() {
+            const matrixA = parseMatrix('matrixA');
+            const matrixB = parseMatrix('matrixB');
+
+            if (matrixA[0].length !== matrixB.length) {
+                alert("O número de colunas da Matriz A deve ser igual ao número de linhas da Matriz B para multiplicação.");
+                return;
+            }
+
+            const result = matrixA.map(row =>
+                matrixB[0].map((_, colIndex) =>
+                    row.reduce((sum, val, rowIndex) => sum + val * matrixB[rowIndex][colIndex], 0)
+                )
+            );
+
+            document.getElementById('result').innerText = formatMatrix(result);
+        }
+
+        function transposeMatrixA() {
+            const matrixA = parseMatrix('matrixA');
+            const result = matrixA[0].map((_, colIndex) => matrixA.map(row => row[colIndex]));
+
+            document.getElementById('result').innerText = formatMatrix(result);
+        }
+
+        function transposeMatrixB() {
+            const matrixB = parseMatrix('matrixB');
+            const result = matrixB[0].map((_, colIndex) => matrixB.map(row => row[colIndex]));
+
+            document.getElementById('result').innerText = formatMatrix(result);
+        }
+
+        function goBackToStart() {
+            document.getElementById('matrix-dimensions').style.display = 'block';
+            document.getElementById('matrix-inputs').style.display = 'none';
+            document.querySelector('.operations').style.display = 'none';
+            document.querySelector('.result').style.display = 'none';
+            document.getElementById('result').innerText = '';
+        }
+    </script>
+</body>
+
+</html>
