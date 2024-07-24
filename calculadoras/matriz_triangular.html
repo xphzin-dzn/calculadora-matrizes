@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerar Matriz Triangular</title>
+    <link rel="icon" type="image/png" href="../img/matriz.png">
+    <style>
+        /* Estilos para o corpo da página */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            overflow-x: hidden;
+        }
+
+        /* Estilos para o container principal */
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            margin: auto;
+        }
+
+        /* Estilos para o título principal */
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Estilos para rótulos e inputs */
+        label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        input[type="number"],
+        select {
+            width: 60px;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilos para os botões */
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        /* Efeitos ao passar o mouse sobre o botão */
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Efeitos quando o botão é pressionado */
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Estilos para a área de resultados */
+        .result {
+            margin-top: 20px;
+        }
+
+        /* Estilos para o bloco de resultados */
+        pre {
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Estilos para o rodapé */
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            background-color: white;
+        }
+
+        /* Estilos para telas pequenas */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            label,
+            input[type="number"],
+            select {
+                font-size: 12px;
+            }
+
+            input[type="number"] {
+                width: 50px;
+                padding: 3px;
+            }
+
+            button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Gerar Matriz Triangular</h1>
+        <div>
+            <label for="order">Ordem da matriz:</label>
+            <input type="number" id="order" min="1" />
+        </div>
+        <div>
+            <label for="type">Tipo:</label>
+            <select id="type">
+                <option value="superior">Superior</option>
+                <option value="inferior">Inferior</option>
+            </select>
+        </div>
+        <button onclick="generateTriangularMatrix()">Gerar Matriz</button>
+        <div id="result" class="result"></div>
+        <button class="back-button" onclick="goBackToMenu()">Voltar ao Menu</button>
+    </div>
+    <script>
+        /**
+         * Gera e exibe uma matriz triangular com base na ordem e tipo selecionados.
+         */
+        function generateTriangularMatrix() {
+            // Obtém o valor da ordem da matriz e o tipo selecionado (superior ou inferior)
+            const order = parseInt(document.getElementById('order').value);
+            const type = document.getElementById('type').value;
+
+            // Verifica se a ordem da matriz é válida
+            if (isNaN(order) || order < 1) {
+                alert("Por favor, insira uma ordem válida para a matriz.");
+                return;
+            }
+
+            // Cria uma matriz de ordem x ordem preenchida com zeros
+            let matrix = Array.from({ length: order }, () => Array(order).fill(0));
+
+            // Preenche a matriz com valores aleatórios para criar a matriz triangular
+            for (let i = 0; i < order; i++) {
+                for (let j = 0; j < order; j++) {
+                    // Adiciona valores aleatórios somente para a parte triangular
+                    if (type === 'superior' && i <= j) {
+                        matrix[i][j] = Math.floor(Math.random() * 10);
+                    } else if (type === 'inferior' && i >= j) {
+                        matrix[i][j] = Math.floor(Math.random() * 10);
+                    }
+                }
+            }
+
+            // Exibe a matriz formatada na área de resultados
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<pre>${matrix.map(row => row.map(cell => cell.toString().padStart(4, ' ')).join('')).join('\n')}</pre>`;
+        }
+
+        /**
+         * Redireciona o usuário de volta para a página principal.
+         */
+        function goBackToMenu() {
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+
+</html>
